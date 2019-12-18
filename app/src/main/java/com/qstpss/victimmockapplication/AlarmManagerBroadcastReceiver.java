@@ -22,6 +22,8 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
             long startTime = System.currentTimeMillis();
             alarmManager.setInexactRepeating(AlarmManager.RTC, startTime, repeatInterval, pendingIntent);
 
+        } else {
+            //TODO : call REST
         }
 
     }
