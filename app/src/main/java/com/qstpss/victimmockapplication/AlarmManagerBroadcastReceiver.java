@@ -7,12 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 
 class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
-    private final String BOOT_ACTION = "android.intent.action.BOOT_COMPLETED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action != null && action.equalsIgnoreCase(BOOT_ACTION)) {
+        String bootAction = "android.intent.action.BOOT_COMPLETED";
+        if (action != null && action.equalsIgnoreCase(bootAction)) {
             Intent intent2 = new Intent(context, AlarmManagerBroadcastReceiver.class);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent2, PendingIntent.FLAG_CANCEL_CURRENT);
             AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -23,7 +23,8 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
             alarmManager.setInexactRepeating(AlarmManager.RTC, startTime, repeatInterval, pendingIntent);
 
         } else {
-            //TODO : call REST
+            //TODO : add all supported methods in IClient and ClientImpl, make a jar lib and call REST using this jar lib
+            //add model package
         }
 
     }
