@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.StrictMode;
 
+import com.qstpss.victimmockapplication.mocks.Vibration;
 import com.qstpss.victimmockapplication.model.MockEvent;
+import com.qstpss.victimmockapplication.model.Status;
 import com.qstpss.victimmockapplication.model.Type;
 import com.qstpss.victimmockapplication.webclient.ClientImpl;
 import com.qstpss.victimmockapplication.webclient.IClient;
@@ -28,7 +30,7 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         if (action != null && action.equalsIgnoreCase(bootAction)) {
             Intent intent2 = new Intent(context, AlarmManagerBroadcastReceiver.class);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent2, PendingIntent.FLAG_CANCEL_CURRENT);
-            AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             alarmManager.cancel(pendingIntent);
 
             int repeatInterval = 1000 * 60 * 5;
@@ -42,37 +44,43 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
             try {
                 startedEvents = client.getStartedEvents();
             } catch (IOException e) {
-                //TODO
+                return;
             }
             Response response = client.getResponse();
             if (response.isSuccessful()) {
-                processActiveEvents(response);
-
+                processActiveEvents(response, context);
             }
-
         }
 
     }
 
-    private void processActiveEvents(Response response) {
+    private void processActiveEvents(Response response, Context context) {
         List<MockEvent> body = (List<MockEvent>) response.body();
         body.stream()
-                .map(MockEvent::getType)
-                .forEach(eventType -> {
-            switch (eventType) {
-                case VIBRATION:
-                    vibrate();
-                    break;
-                case MUTE_ALARM:
-                    muteAlarm();
-                    break;
-                case MUTE_MEDIA:
-                    muteMedia();
-                    break;
-            }
-        });
-        if (body.isEmpty()) {
-            //todo shutdown all
+                .filter(mockEvent -> mockEvent.getStatus() == Status.PENDING)
+                .forEach(mockEvent -> {
+                    switch (mockEvent.getType()) {
+                        case VIBRATION:
+                            vibrate(context, mockEvent);
+                            break;
+                        case MUTE_ALARM:
+                            muteAlarm();
+                            break;
+                        case MUTE_MEDIA:
+                            muteMedia();
+                            break;
+                    }
+                });
+        disableMocks(body);
+    }
+
+    private void disableMocks(List<MockEvent> body) {
+        List<Type> mockTypes =
+                body.stream()
+                        .map(MockEvent::getType)
+                        .collect(Collectors.toList());
+        if (!mockTypes.contains(Type.VIBRATION)) {
+            Vibration.MOCK.stopMock();
         }
     }
 
@@ -82,8 +90,16 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
     private void muteAlarm() {
     }
 
-    private void vibrate() {
-        //todo is running? if yes do or not
+    private void vibrate(Context context, MockEvent mockEvent) {
+        IClient client = new ClientImpl();
+        try {
+            client.startMockEvent(mockEvent);
+        } catch (IOException e) {
+            return;
+        }
+        if (client.getResponse().isSuccessful()) {
+            Vibration.MOCK.startMock(context);
+        }
     }
 
     private void allowToExecuteInMainThread() {
