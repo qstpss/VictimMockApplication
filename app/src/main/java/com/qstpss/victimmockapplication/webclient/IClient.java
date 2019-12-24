@@ -3,6 +3,7 @@ package com.qstpss.victimmockapplication.webclient;
 import com.qstpss.victimmockapplication.model.MockEvent;
 
 import java.io.IOException;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -22,6 +23,9 @@ public interface IClient {
 
     @GET(serverControllerEndpoint + "/actualEventByType={type}")
     Call<MockEvent> getActiveEventByType(@Path("type") String type) throws IOException;
+
+    @GET(serverControllerEndpoint + "/startedEvents")
+    Call<List<MockEvent>> getStartedEvents() throws IOException;
 
     Response getResponse();
 }
