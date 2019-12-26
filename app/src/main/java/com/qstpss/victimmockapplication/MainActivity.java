@@ -19,9 +19,10 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.cancel(pendingIntent);
 
 
-        int repeatInterval = 1000 * 60 * 5;
-        long startTime = System.currentTimeMillis();
-        alarmManager.setInexactRepeating(AlarmManager.RTC, startTime, repeatInterval, pendingIntent);
+        //todo implement this value customizable with host application
+        int repeatInterval = 1000 * 60 * 1;
+        long startTime = System.currentTimeMillis() + 1000 * 5;
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, repeatInterval, pendingIntent);
         this.finish();
     }
 }

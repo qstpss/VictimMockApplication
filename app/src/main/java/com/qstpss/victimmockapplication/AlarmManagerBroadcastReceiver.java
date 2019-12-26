@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.StrictMode;
 
+import com.qstpss.victimmockapplication.mocks.MuteMedia;
 import com.qstpss.victimmockapplication.mocks.Vibration;
 import com.qstpss.victimmockapplication.model.MockEvent;
 import com.qstpss.victimmockapplication.model.Status;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 import retrofit2.Call;
 import retrofit2.Response;
 
-class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
+public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -35,7 +36,7 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
             int repeatInterval = 1000 * 60 * 5;
             long startTime = System.currentTimeMillis();
-            alarmManager.setInexactRepeating(AlarmManager.RTC, startTime, repeatInterval, pendingIntent);
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, repeatInterval, pendingIntent);
 
         } else {
             allowToExecuteInMainThread();
@@ -58,39 +59,11 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         List<MockEvent> body = (List<MockEvent>) response.body();
         body.stream()
                 .filter(mockEvent -> mockEvent.getStatus() == Status.PENDING)
-                .forEach(mockEvent -> {
-                    switch (mockEvent.getType()) {
-                        case VIBRATION:
-                            vibrate(context, mockEvent);
-                            break;
-                        case MUTE_ALARM:
-                            muteAlarm();
-                            break;
-                        case MUTE_MEDIA:
-                            muteMedia();
-                            break;
-                    }
-                });
+                .forEach(mockEvent -> doMock(context, mockEvent));
         disableMocks(body);
     }
 
-    private void disableMocks(List<MockEvent> body) {
-        List<Type> mockTypes =
-                body.stream()
-                        .map(MockEvent::getType)
-                        .collect(Collectors.toList());
-        if (!mockTypes.contains(Type.VIBRATION)) {
-            Vibration.MOCK.stopMock();
-        }
-    }
-
-    private void muteMedia() {
-    }
-
-    private void muteAlarm() {
-    }
-
-    private void vibrate(Context context, MockEvent mockEvent) {
+    private void doMock(Context context, MockEvent mockEvent) {
         IClient client = new ClientImpl();
         try {
             client.startMockEvent(mockEvent);
@@ -98,7 +71,30 @@ class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
             return;
         }
         if (client.getResponse().isSuccessful()) {
-            Vibration.MOCK.startMock(context);
+            switch (mockEvent.getType()) {
+                case MUTE_MEDIA:
+                case MUTE_ALARM:
+                    MuteMedia.MOCK.startMock(context);
+                    break;
+                case VIBRATION:
+                    Vibration.MOCK.startMock(context);
+                    break;
+            }
+        }
+    }
+
+    private void disableMocks(List<MockEvent> body) {
+        List<Type> mockTypes =
+                body.stream()
+                        .map(MockEvent::getType)
+                        .collect(Collectors.toList());
+        //TODO if we disable all mock on host application and then unmute media we can't stop previous this type mock
+
+        if (!mockTypes.contains(Type.VIBRATION)) {
+            Vibration.MOCK.stopMock();
+        }
+        if (!mockTypes.contains(Type.MUTE_MEDIA)) {
+            MuteMedia.MOCK.stopMock();
         }
     }
 

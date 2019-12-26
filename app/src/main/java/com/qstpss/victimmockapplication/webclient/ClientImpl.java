@@ -1,5 +1,6 @@
 package com.qstpss.victimmockapplication.webclient;
 
+import com.google.gson.GsonBuilder;
 import com.qstpss.victimmockapplication.model.MockEvent;
 
 import java.io.IOException;
@@ -19,8 +20,11 @@ public class ClientImpl implements IClient {
     public ClientImpl() {
         this.retrofit = new Retrofit.Builder()
                 .baseUrl(hostAddress)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+                .addConverterFactory(GsonConverterFactory.create(
+                        new GsonBuilder()
+                                .serializeNulls()
+                                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create()))
+                                .build();
     }
 
     @Override
