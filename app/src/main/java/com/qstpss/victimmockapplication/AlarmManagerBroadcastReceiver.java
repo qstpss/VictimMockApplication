@@ -92,7 +92,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
                 body.stream()
                         .map(MockEvent::getType)
                         .collect(Collectors.toList());
-        //TODO if we disable all mock on host application and then unmute media we can't stop previous this type mock
 
         if (!mockTypes.contains(Type.VIBRATION)) {
             Vibration.MOCK.stopMock();
