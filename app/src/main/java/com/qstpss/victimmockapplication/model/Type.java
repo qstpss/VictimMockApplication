@@ -2,6 +2,6 @@ package com.qstpss.victimmockapplication.model;
 
 public enum Type {
     MUTE_MEDIA,
-    MUTE_ALARM,
+    POPUP_MESSAGE,
     VIBRATION
 }

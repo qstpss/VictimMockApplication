@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.StrictMode;
 
 import com.qstpss.victimmockapplication.mocks.MuteMedia;
+import com.qstpss.victimmockapplication.mocks.PopupMessage;
 import com.qstpss.victimmockapplication.mocks.Vibration;
 import com.qstpss.victimmockapplication.model.MockEvent;
 import com.qstpss.victimmockapplication.model.Status;
@@ -73,8 +74,11 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         if (client.getResponse().isSuccessful()) {
             switch (mockEvent.getType()) {
                 case MUTE_MEDIA:
-                case MUTE_ALARM:
                     MuteMedia.MOCK.startMock(context);
+                    break;
+                case POPUP_MESSAGE:
+                    PopupMessage.MOCK.setMessage(mockEvent.getMessage());
+                    PopupMessage.MOCK.startMock(context);
                     break;
                 case VIBRATION:
                     Vibration.MOCK.startMock(context);
@@ -95,6 +99,9 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         }
         if (!mockTypes.contains(Type.MUTE_MEDIA)) {
             MuteMedia.MOCK.stopMock();
+        }
+        if (!mockTypes.contains(Type.POPUP_MESSAGE)) {
+            PopupMessage.MOCK.stopMock();
         }
     }
 

@@ -10,6 +10,7 @@ public enum Vibration implements Mock {
 
     @Override
     public void startMock(Context context) {
+        stopMock();
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator.hasVibrator()) {
             vibrator.vibrate(pattern, 2);

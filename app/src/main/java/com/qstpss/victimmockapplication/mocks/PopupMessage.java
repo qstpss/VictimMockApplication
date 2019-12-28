@@ -1,23 +1,24 @@
 package com.qstpss.victimmockapplication.mocks;
 
 import android.content.Context;
-import android.media.AudioManager;
+import android.widget.Toast;
 
-public enum MuteMedia implements Mock {
+public enum PopupMessage implements Mock {
     MOCK;
 
     private volatile boolean isStarted;
+    private String textMessage;
 
     @Override
     public void startMock(Context context) {
         stopMock();
         isStarted = true;
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        Toast message = Toast.makeText(context, textMessage, Toast.LENGTH_LONG);
         new Thread(() -> {
             while (isStarted) {
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
+                message.show();
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     //it never happens
                 }
@@ -30,5 +31,9 @@ public enum MuteMedia implements Mock {
         if (isStarted) {
             isStarted = false;
         }
+    }
+
+    public void setMessage(String textMessage) {
+        this.textMessage = textMessage;
     }
 }
