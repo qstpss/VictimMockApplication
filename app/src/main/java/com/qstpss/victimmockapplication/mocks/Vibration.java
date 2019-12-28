@@ -6,7 +6,7 @@ public enum Vibration implements Mock {
     MOCK;
 
     private Vibrator vibrator;
-    private static long[] pattern = {0, 4000, 10000, 2000};
+    private static long[] pattern = {0, 4000, 10000, 4000};
 
     @Override
     public void startMock(Context context) {

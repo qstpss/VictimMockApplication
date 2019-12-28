@@ -18,9 +18,7 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.cancel(pendingIntent);
 
-
-        //todo implement this value customizable with host application
-        int repeatInterval = 1000 * 60 * 1;
+        int repeatInterval = 1000 * 60;
         long startTime = System.currentTimeMillis() + 1000 * 5;
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, repeatInterval, pendingIntent);
         this.finish();

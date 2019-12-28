@@ -18,7 +18,7 @@ public enum PopupMessage implements Mock {
             while (isStarted) {
                 message.show();
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(30000);
                 } catch (InterruptedException e) {
                     //it never happens
                 }

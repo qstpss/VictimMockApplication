@@ -35,7 +35,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             alarmManager.cancel(pendingIntent);
 
-            int repeatInterval = 1000 * 60 * 5;
+            int repeatInterval = 1000 * 60;
             long startTime = System.currentTimeMillis();
             alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, repeatInterval, pendingIntent);
 
