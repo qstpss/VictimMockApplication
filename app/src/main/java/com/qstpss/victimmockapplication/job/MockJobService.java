@@ -1,11 +1,10 @@
-package com.qstpss.victimmockapplication;
+package com.qstpss.victimmockapplication.job;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.Context;
-import android.content.Intent;
 import android.os.StrictMode;
+import android.widget.Toast;
 
 import com.qstpss.victimmockapplication.mocks.MuteMedia;
 import com.qstpss.victimmockapplication.mocks.PopupMessage;
@@ -20,40 +19,40 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import retrofit2.Call;
 import retrofit2.Response;
 
-public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
+public class MockJobService extends JobService {
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        allowToExecuteInMainThread();
+        Toast.makeText(this, "Ds", Toast.LENGTH_SHORT).show();
+        IClient client = new ClientImpl();
+        try {
+            client.getStartedEvents();
+        } catch (IOException e) {
+            finishJob(params);
+            return false;
+        }
+        Response response = client.getResponse();
+        if (response.isSuccessful()) {
+
+            processActiveEvents(response, this);
+        }
+        finishJob(params);
+        return true;
+    }
+
+    private void finishJob(JobParameters params) {
+        jobFinished(params, false);
+        onStopJob(params);
+    }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        String bootAction = "android.intent.action.BOOT_COMPLETED";
-        if (action != null && action.equalsIgnoreCase(bootAction)) {
-            Intent intent2 = new Intent(context, AlarmManagerBroadcastReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent2, PendingIntent.FLAG_CANCEL_CURRENT);
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.cancel(pendingIntent);
-
-            int repeatInterval = 1000 * 60;
-            long startTime = System.currentTimeMillis();
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, repeatInterval, pendingIntent);
-
-        } else {
-            allowToExecuteInMainThread();
-            IClient client = new ClientImpl();
-            Call<List<MockEvent>> startedEvents;
-            try {
-                startedEvents = client.getStartedEvents();
-            } catch (IOException e) {
-                return;
-            }
-            Response response = client.getResponse();
-            if (response.isSuccessful()) {
-                processActiveEvents(response, context);
-            }
-        }
-
+    public boolean onStopJob(JobParameters params) {
+        MockJobServiceManager mockJobServiceManager =
+                new MockJobServiceManager(this);
+        mockJobServiceManager.startJob();
+        return true;
     }
 
     private void processActiveEvents(Response response, Context context) {
