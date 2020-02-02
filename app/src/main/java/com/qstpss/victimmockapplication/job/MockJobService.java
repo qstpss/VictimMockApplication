@@ -1,4 +1,4 @@
-package com.qstpss.victimmockapplication;
+package com.qstpss.victimmockapplication.job;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -45,7 +45,6 @@ public class MockJobService extends JobService {
     private void finishJob(JobParameters params) {
         jobFinished(params, false);
         onStopJob(params);
-        //TODO CREATE A BOOT RECEIVER TO START TASK AFTER REBOOT
     }
 
     @Override

@@ -2,15 +2,11 @@ package com.qstpss.victimmockapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+
+import com.qstpss.victimmockapplication.job.MockJobServiceManager;
 
 public class MainActivity extends AppCompatActivity {
 

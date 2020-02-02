@@ -1,4 +1,4 @@
-package com.qstpss.victimmockapplication;
+package com.qstpss.victimmockapplication.job;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -16,9 +16,9 @@ public class MockJobServiceManager {
     public void startJob() {
         ComponentName serviceName = new ComponentName(context, MockJobService.class);
         JobInfo jobInfo = new JobInfo.Builder(1, serviceName)
-                //.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setMinimumLatency(5000)
-                .setOverrideDeadline(10000)
+                .setMinimumLatency(60000)
+                .setOverrideDeadline(70000)
+                .setPersisted(true)//enhance to probability to run task after reboot because boot receiver doesn't work well
                 .build();
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(jobInfo);
