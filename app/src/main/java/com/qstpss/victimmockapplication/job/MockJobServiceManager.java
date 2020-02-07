@@ -18,7 +18,6 @@ public class MockJobServiceManager {
         JobInfo jobInfo = new JobInfo.Builder(1, serviceName)
                 .setMinimumLatency(60000)
                 .setOverrideDeadline(70000)
-                .setPersisted(true)//enhance to probability to run task after reboot because boot receiver doesn't work well
                 .build();
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(jobInfo);

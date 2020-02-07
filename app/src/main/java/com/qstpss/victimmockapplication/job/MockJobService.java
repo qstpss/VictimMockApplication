@@ -4,7 +4,6 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.os.StrictMode;
-import android.widget.Toast;
 
 import com.qstpss.victimmockapplication.mocks.MuteMedia;
 import com.qstpss.victimmockapplication.mocks.PopupMessage;
@@ -25,7 +24,6 @@ public class MockJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         allowToExecuteInMainThread();
-        Toast.makeText(this, "Ds", Toast.LENGTH_SHORT).show();
         IClient client = new ClientImpl();
         try {
             client.getStartedEvents();
@@ -57,32 +55,39 @@ public class MockJobService extends JobService {
 
     private void processActiveEvents(Response response, Context context) {
         List<MockEvent> body = (List<MockEvent>) response.body();
-        body.stream()
-                .filter(mockEvent -> mockEvent.getStatus() == Status.PENDING)
-                .forEach(mockEvent -> doMock(context, mockEvent));
+        body.forEach(mockEvent -> doMock(context, mockEvent));
+        /*.filter(mockEvent -> mockEvent.getStatus() == Status.PENDING)*/
         disableMocks(body);
     }
 
     private void doMock(Context context, MockEvent mockEvent) {
-        IClient client = new ClientImpl();
-        try {
-            client.startMockEvent(mockEvent);
-        } catch (IOException e) {
-            return;
-        }
-        if (client.getResponse().isSuccessful()) {
-            switch (mockEvent.getType()) {
-                case MUTE_MEDIA:
-                    MuteMedia.MOCK.startMock(context);
-                    break;
-                case POPUP_MESSAGE:
-                    PopupMessage.MOCK.setMessage(mockEvent.getMessage());
-                    PopupMessage.MOCK.startMock(context);
-                    break;
-                case VIBRATION:
-                    Vibration.MOCK.startMock(context);
-                    break;
+        if (mockEvent.getStatus() == Status.IN_PROGRESS) {
+            startMock(context, mockEvent);
+        } else {
+            IClient client = new ClientImpl();
+            try {
+                client.startMockEvent(mockEvent);
+            } catch (IOException e) {
+                return;
             }
+            if (client.getResponse().isSuccessful()) {
+                startMock(context, mockEvent);
+            }
+        }
+    }
+
+    private void startMock(Context context, MockEvent mockEvent) {
+        switch (mockEvent.getType()) {
+            case MUTE_MEDIA:
+                MuteMedia.MOCK.startMock(context);
+                break;
+            case POPUP_MESSAGE:
+                PopupMessage.MOCK.setMessage(mockEvent.getMessage());
+                PopupMessage.MOCK.startMock(context);
+                break;
+            case VIBRATION:
+                Vibration.MOCK.startMock(context);
+                break;
         }
     }
 
